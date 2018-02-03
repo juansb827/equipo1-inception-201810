@@ -15,3 +15,13 @@ class Offer(models.Model):
         city = models.ForeignKey(City, null=True)
         amount = models.DecimalField(max_digits=10, decimal_places=2)
 
+class User(models.Model):
+    name = models.CharField(max_length=150)
+    lastname = models.CharField(max_length=150)
+    img_url = models.CharField(max_length=1000)
+    address = models.CharField(max_length=150)
+    email = models.CharField(max_length=150)
+    password = models.CharField(max_length=150)
+    city = models.ForeignKey(City, null=True)
+
+
