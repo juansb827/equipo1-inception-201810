@@ -29,6 +29,13 @@ class Profile(models.Model):
     #password = models.CharField(max_length=150)
     city = models.ForeignKey(City, null=True)
 
+class Comment(models.Model):
+    #id_comment
+    content = models.TextField(max_length=3000)
+    email_comment = models.CharField(max_length=150)
+    create_date = models.DateTimeField(blank=False)
+    user = models.ForeignKey(User, null=False)
+
 #TODO: Agregar modelos faltantes aca
 
 
