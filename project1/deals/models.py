@@ -10,17 +10,25 @@ class City(models.Model):
     name = models.CharField(max_length=150)
     country = models.CharField(max_length=150)
 
+class Category(models.Model):
+    name= models.CharField(max_length=150)
+
+
 class Offer(models.Model):
-        name = models.CharField(max_length=150)
-        img_url = models.CharField(max_length=1000)
-        description = models.CharField(max_length=1000)
-        start_date = models.DateTimeField(blank=True)
-        end_date = models.DateTimeField(blank=True)
-        city = models.ForeignKey(City, null=True)
-        amount = models.DecimalField(max_digits=10, decimal_places=2)
+    category= models.ForeignKey(Category, null=True)
+    name = models.CharField(max_length=150)
+    img_url = models.CharField(max_length=1000)
+    description = models.CharField(max_length=1000)
+    start_date = models.DateTimeField(blank=True)
+    end_date = models.DateTimeField(blank=True)
+    city = models.ForeignKey(City, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    preferences = models.ManyToManyField(Category)
     #las guaname = models.CharField(max_length=150)
     #lastname = models.CharField(max_length=150)
     img_url = models.CharField(max_length=1000)
@@ -50,7 +58,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-        if(instance.is_staff== False):
-            instance.profile.save()
+    if(instance.is_staff== False):
+        instance.profile.save()
 
 
