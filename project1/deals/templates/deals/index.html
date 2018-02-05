@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1 align="center">Lista de promociones</h1>
+{%  for oferta in lista_promociones %}
+<div class="col-md-4 col-sm-6 col-lg-3 well">
+    <ul>
+        <li>Nombre: {{oferta.name}}</li>
+        <li>Descripcion: {{oferta.description}}</li>
+        <li>Fecha: {{oferta.end_date}}</li>
+        <li>Valor: {{oferta.amount}}</li>
+        <li>Ciudad: {{oferta.city.name}} - {{oferta.city.country}}</li>
+
+
+
+
+
+    </ul>
+
+     <img class="img-responsive" src="{{oferta.img_url}}" width="500" height="300">
+
+</div>
+{% endfor %}
+
+
+</body>
+</html>
