@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 import os
+
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from cloudinary.forms import cl_init_js_callbacks
@@ -76,3 +78,7 @@ def add_user(request):
 
 
     return render(request, 'deals/signup.html', context)
+
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('deals:index'))

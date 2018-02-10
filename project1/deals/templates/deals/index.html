@@ -27,7 +27,7 @@
         <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
                 <li><a class="glyphicon glyphicon-user" href="{% url 'deals:index' %}">{{ user.username }}</a></li>
-                <li><a class="glyphicon glyphicon-log-out" href="">Logout</a></li>
+                <li><a class="glyphicon glyphicon-log-out" href="{% url 'deals:logout' %}">Logout</a></li>
             {% else %}
                 <li><a href="{% url 'deals:addUser' %}">Registro</a></li>
                 <li><a class="glyphicon glyphicon-log-in" href="">Login </a></li>
