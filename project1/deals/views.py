@@ -79,6 +79,18 @@ def add_user(request):
 
     return render(request, 'deals/signup.html', context)
 
+
+def edit_user(request):
+    form = UserForm()
+    cl_init_js_callbacks(form, request)
+
+    form
+    context = {
+        'form': form
+    }
+
+    return render(request, 'deals/signup.html', context)
+
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse('deals:index'))
