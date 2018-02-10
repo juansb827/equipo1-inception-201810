@@ -1,18 +1,24 @@
 # -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from cloudinary.models import CloudinaryField
 
 
 class City(models.Model):
     name = models.CharField(max_length=150)
     country = models.CharField(max_length=150)
 
+    def __unicode__(self):
+        return self.name
+
 
 class Category(models.Model):
     name = models.CharField(max_length=150)
+
+    def __unicode__(self):
+        return self.name
 
 
 class Offer(models.Model):
@@ -25,17 +31,20 @@ class Offer(models.Model):
     city = models.ForeignKey(City, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
+    def __unicode__(self):
+        return self.name
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     preferences = models.ManyToManyField(Category)
-    # las guaname = models.CharField(max_length=150)
-    # lastname = models.CharField(max_length=150)
-    img_url = models.CharField(max_length=1000)
+    country = models.CharField(max_length=30,null=True) #TODO: Country Model
+    image = CloudinaryField('image', null=True)
     address = models.CharField(max_length=150)
-    # email = models.CharField(max_length=150)
-    # password = models.CharField(max_length=150)
     city = models.ForeignKey(City, null=True)
+
+    def __unicode__(self):
+        return self.user.username + "-" + self.user.email
 
 
 class Comment(models.Model):
@@ -45,13 +54,6 @@ class Comment(models.Model):
     create_date = models.DateTimeField(blank=False)
     user = models.ForeignKey(User, null=False)
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
 
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    if not instance.is_staff:
-        instance.profile.save()
+

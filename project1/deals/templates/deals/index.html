@@ -9,6 +9,35 @@
     <title>Lista de promociones</title>
 </head>
 <body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'deals:index' %}">Bienvenido</a>
+        </div>
+
+    <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+                <li><a class="glyphicon glyphicon-user" href="{% url 'deals:index' %}">{{ user.username }}</a></li>
+                <li><a class="glyphicon glyphicon-log-out" href="">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'deals:addUser' %}">Registro</a></li>
+                <li><a class="glyphicon glyphicon-log-in" href="">Login </a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+</nav>
+<br><br>
+
 <h1 align="center" class="page-header">Lista de promociones</h1>
 {%  for oferta in lista_promociones %}
 <div class="col-md-4 col-sm-6 col-lg-3">

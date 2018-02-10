@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load cloudinary %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+{% cloudinary_includes %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    $(function() {
+        if($.fn.cloudinary_fileupload !== undefined) {
+            $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+        }
+    });
+
+     $(function () {
+
+     }).on('cloudinarydone',function (e,data) {
+         console.log("DONE",data);
+         $('#img_preview').attr("src",data.result.url)
+         //$('#id_image').hide()
+     })
+
+    $(function () {
+
+     }).on('fileuploadprogress',function (e,data) {
+
+        // console.log("progress",data.loaded ,data.total);
+
+     })
+
+
+</script>
+<div class="row">
+    <div class="col-sm-4 col-sm-offset-4">
+        {% block content %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <div style="width: 100%;text-align: center">
+                <div id="loading_indicator">IMG</div>
+                <img id="img_preview" src="" class="img-thumbnail" crop="scale" width="304"  />
+            </div>
+            {%  buttons %}
+            <input type="submit" value="Registrar" class="btn btn-primary btn-block">
+            <a href="{% url 'deals:index' %}"  class="btn btn-primary btn-block">Cancelar</a>
+            {% endbuttons %}
+        </form>
+        {% endblock %}
+    </div>
+</div>
+</body>
+</html>
