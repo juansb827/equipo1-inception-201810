@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<div class="row">
+    <div class="col-sm-4 col-sm-offset-4">
+        {% block content %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form%}
+            {%  buttons %}
+            <input type="submit" value="Login" class="btn btn-primary btn-block">
+            <a href="{% url 'deals:index' %}"  class="btn btn-primary btn-block">Cancelar</a>
+            {% endbuttons %}
+            <div class="btn-danger">
+                {{login_message }}
+            </div>
+        </form>
+        {% endblock %}
+    </div>
+</div>
+</body>
+</html>

@@ -69,3 +69,18 @@ class UserForm(ModelForm):
         if password != password2:
             raise forms.ValidationError('Las contraseñas no coinciden.')
         return password2
+
+class LoginForm(ModelForm):
+    username = forms.CharField(max_length=50, label="Usuario")
+    password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña")
+
+    class Meta:
+        model = Profile
+        fields = ['username', 'password']
+
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        return username
