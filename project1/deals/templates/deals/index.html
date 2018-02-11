@@ -1,8 +1,11 @@
-{% load bootstrap3 %}
+<!DOCTYPE html>
 
+<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>-->
+<script src="https://code.jquery.com/jquery.js"></script>
+{% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,9 +56,39 @@
             <li>Ciudad: {{oferta.city.name}} - {{oferta.city.country}}</li>
           </ul>
           <img class="img-responsive" src="{{oferta.img_url}}" width="500" height="300">
+          <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#{{oferta.name}}">Ver promoción</button>
+
+          <div class="modal fade" id="{{oferta.name}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">{{oferta.name}}</h4>
+                              </div>
+                              <div class="modal-body">
+                                  <ul>
+                                    <li>Descripcion: {{oferta.description}}</li>
+                                    <li>Fecha: {{oferta.end_date}}</li>
+                                    <li>Valor: {{oferta.amount}}</li>
+                                    <li>Ciudad: {{oferta.city.name}} - {{oferta.city.country}}</li>
+                                  </ul>
+                                  <img class="img-responsive" align="center" src="{{oferta.img_url}}" width="500" height="300">
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                                <button type="button" class="btn btn-primary">Ver Promocion</button>
+                              </div>
+                            </div>
+                          </div>
+                     </div>
+    </div>
+
+
       </div>
     </div>
+
 </div>
 {% endfor %}
+
 </body>
 </html>

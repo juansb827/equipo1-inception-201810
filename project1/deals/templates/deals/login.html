@@ -17,7 +17,7 @@
             {% bootstrap_form form%}
             {%  buttons %}
             <input type="submit" value="Login" class="btn btn-primary btn-block">
-            <a href="{% url 'deals:index' %}"  class="btn btn-primary btn-block">Cancelar</a>
+            <a href="{% url 'deals:index' %}"  class="btn btn-block btn-danger">Cancelar</a>
             {% endbuttons %}
             <div class="btn-danger">
                 {{login_message }}
