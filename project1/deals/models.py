@@ -38,10 +38,11 @@ class Offer(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     preferences = models.ManyToManyField(Category)
-    country = models.CharField(max_length=30,null=True) #TODO: Country Model
+    country = models.CharField(max_length=30,null=True)
+    city = models.CharField(max_length=30, null=True)
     image = CloudinaryField('image', null=True)
     address = models.CharField(max_length=150)
-    city = models.ForeignKey(City, null=True)
+
 
     def __unicode__(self):
         return self.user.username + "-" + self.user.email
