@@ -71,6 +71,7 @@ class UserForm(ModelForm):
         return password2
 
 
+
 class EditUserForm(UserForm):
     old_password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña Anterior")
     password = forms.CharField(widget=forms.PasswordInput(), label="Nueva Contraseña")
@@ -108,3 +109,19 @@ class EditUserForm(UserForm):
     def clean_email(self):
         if self.cleaned_data["email"] != self.user.email:
             return super(EditUserForm,self).clean_email()
+
+class LoginForm(ModelForm):
+    username = forms.CharField(max_length=50, label="Usuario")
+    password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña")
+
+    class Meta:
+        model = Profile
+        fields = ['username', 'password']
+
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        return username
+

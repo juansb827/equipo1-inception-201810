@@ -17,7 +17,9 @@ import cloudinary.api
 from django.urls import reverse
 
 from .models import Offer, Profile
-from .forms import UserForm, EditUserForm
+from .forms import UserForm, EditUserForm, LoginForm
+
+
 
 cloudinary.config(
   cloud_name = os.environ.get('CLOUDINARY_NAME'),
@@ -133,3 +135,33 @@ def edit_user(request):
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse('deals:index'))
+
+def login_user(request):
+    form = LoginForm()
+    cl_init_js_callbacks(form, request)
+    form
+    context = {
+        'form': form
+    }
+
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            username = cleaned_data.get('username')
+            password = cleaned_data.get('password')
+
+            user_exists = User.objects.filter(username=username)
+            print "username = ", username, " password = ", password
+            print "user_exists = ", user_exists
+            if user_exists != None and user_exists.count()>0:
+                profile_exists = Profile.objects.filter(user=user_exists)
+                print "profile_exists = ", profile_exists
+                if profile_exists != None and profile_exists.count()>0:
+                    login(request, user_exists.first())
+                    return HttpResponseRedirect(reverse('deals:index'))
+            else:
+                context['login_message'] = 'Login fallido'
+                return render(request, 'deals/login.html', context )
+    else:
+        return render(request, 'deals/login.html', context)
