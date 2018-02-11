@@ -50,21 +50,18 @@ def add_user(request):
             email = cleaned_data.get('email')
             user_model = User()
             user_model.username = username
-            user_model.password = password
+            user_model.set_password(password)
             user_model.first_name = first_name
             user_model.last_name = last_name
             user_model.email = email
             user_model.save()
-            print "address",  cleaned_data.get('address')
-            print "city", cleaned_data.get('city')
-            print "IMAGEEE", cleaned_data.get('image')
-            print "Preferences", list(cleaned_data['preferences'])
 
             profile = Profile()
             profile.user = user_model
             profile.image = cleaned_data.get('image')
             profile.address = cleaned_data.get('address')
             profile.country = cleaned_data.get('country')
+            profile.city = cleaned_data.get('city')
             profile.save()
             profile.preferences = cleaned_data['preferences']
             profile.save();
@@ -92,10 +89,35 @@ def edit_user(request):
         context["form"] = form
         form.user = request.user
         print "valido",form.is_valid()
+        cambio_password=False
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            #TODO save formd
-            return HttpResponseRedirect(reverse('deals:index'))
+            user_model = request.user
+            user_model.username = cleaned_data['username']
+            new_password = cleaned_data['password2']
+            if new_password:
+                user_model.set_password(new_password)
+                cambio_password=True
+
+            user_model.first_name = cleaned_data['first_name']
+            user_model.last_name = cleaned_data['last_name']
+            user_model.email = cleaned_data['email']
+
+            profile = Profile.objects.filter(user=request.user)[0]
+            new_image=cleaned_data.get('image');
+            print "new Image", new_image
+            if new_image :
+                profile.image = new_image
+            profile.address = cleaned_data.get('address')
+            profile.country = cleaned_data.get('country')
+            profile.preferences = cleaned_data['preferences']
+            user_model.save();
+            profile.save();
+
+            if cambio_password:
+                return HttpResponseRedirect(reverse('deals:login'))
+            else :
+                return HttpResponseRedirect(reverse('deals:index'))
 
 
 
@@ -106,6 +128,7 @@ def edit_user(request):
         profile=Profile.objects.filter(user=user)[0]
         form = EditUserForm(initial={
             'user' : user,
+            'profile' : profile,
             'username': user.username,
             'first_name' : user.first_name,
             'last_name': user.last_name,
@@ -119,18 +142,14 @@ def edit_user(request):
 
         })
 
-        print "img",profile.image.url
+        print "img",profile.image
         context["user_img"] = profile.image
         context["form"] = form
 
         cl_init_js_callbacks(form, request)
-
-
-
-
-
     context["edit"] = True
     return render(request, 'deals/signup.html', context)
+
 
 def logout_user(request):
     logout(request)

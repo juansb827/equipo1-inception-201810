@@ -15,6 +15,7 @@ class UserForm(ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña")
     password2 = forms.CharField(widget=forms.PasswordInput() , label="Confirmar Contraseña")
     country = forms.CharField(max_length=30, label="Pais")
+    city = forms.CharField(max_length=30, label="Ciudad")
     address = forms.CharField(max_length=50, label="Direccion")
     image = CloudinaryJsFileField(label="Foto", required=False, options={
         'allowed_formats' : ['jpg','png']
@@ -49,7 +50,7 @@ class UserForm(ModelForm):
         image = self.cleaned_data['image']
         if image == None :
             raise forms.ValidationError('Debe seleccionar una imagen')
-        return None
+        return image
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -68,47 +69,52 @@ class UserForm(ModelForm):
         password2 = self.cleaned_data['password2']
         if password != password2:
             raise forms.ValidationError('Las contraseñas no coinciden.')
-        return password2
-
+        return password
 
 
 class EditUserForm(UserForm):
     old_password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña Anterior")
-    password = forms.CharField(widget=forms.PasswordInput(), label="Nueva Contraseña")
+    password = forms.CharField(widget=forms.PasswordInput(), label="Nueva Contraseña (Opcional)", required=False)
+    password2 = forms.CharField(widget=forms.PasswordInput(), label="Confirmar Nueva Contraseña (Opcional)", required=False)
 
     class Meta:
         model = Profile
-        fields = ['username', 'first_name', 'last_name', 'email', 'old_password','password', 'password2', 'address', 'country', 'city',
+        fields = ['username', 'first_name', 'last_name', 'email', 'old_password','password', 'password2', 'address', 'country' , 'city',
                   'preferences', 'image']
 
     def clean(self):
-
+        print "big_clean1 "
         cleaned_data=super(EditUserForm, self).clean()
-
+        print "big_clean2 "
         old_password = cleaned_data['old_password']
         password = cleaned_data['password']
-        if old_password and password:
+        if old_password :
+            print "old pass", old_password
+            print "cechk", self.user.check_password(old_password)
             if not self.user.check_password(old_password):
                 raise forms.ValidationError('Contraseña incorrecta.')
-            if old_password == password:
+            if password and old_password == password:
                 raise forms.ValidationError('La nueva contraseña debe ser diferente a la anterior.')
-
-
         return cleaned_data
-
-
-
-
-
-
 
     def clean_username(self):
         if self.cleaned_data["username"] != self.user.username:
             return super(EditUserForm,self).clean_username()
+        return self.cleaned_data["username"]
 
     def clean_email(self):
         if self.cleaned_data["email"] != self.user.email:
             return super(EditUserForm,self).clean_email()
+        return self.cleaned_data["email"]
+
+    def clean_password2(self) :
+        new_password=self.cleaned_data["password"]
+        if new_password:
+            return super(EditUserForm, self).clean_password2()
+        return new_password
+
+
+
 
 class LoginForm(ModelForm):
     username = forms.CharField(max_length=50, label="Usuario")
