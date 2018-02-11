@@ -36,6 +36,12 @@
 
 
 </script>
+{% if edit %}
+<div class="row" style="text-align: center">
+    <h1>Modificar informacion</h1>
+</div>
+
+{% endif %}
 <div class="row">
     <div class="col-sm-4 col-sm-offset-4">
         {% block content %}
@@ -43,9 +49,11 @@
             {% csrf_token %}
             {% bootstrap_form form %}
             <div style="width: 100%;text-align: center">
-                <div id="loading_indicator">IMG</div>
-                <img id="img_preview" src="" class="img-thumbnail" crop="scale" width="304"  />
+                <div id="loading_indicator"></div>
+                <img id="img_preview" src="{{user_img.url}}" class="img-thumbnail" crop="scale" width="304"  />
             </div>
+
+
             {%  buttons %}
             <input type="submit" value="Registrar" class="btn btn-primary btn-block">
             <a href="{% url 'deals:index' %}"  class="btn btn-primary btn-block">Cancelar</a>

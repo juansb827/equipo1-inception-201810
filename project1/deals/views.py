@@ -17,7 +17,7 @@ import cloudinary.api
 from django.urls import reverse
 
 from .models import Offer, Profile
-from .forms import UserForm
+from .forms import UserForm, EditUserForm
 
 cloudinary.config(
   cloud_name = os.environ.get('CLOUDINARY_NAME'),
@@ -81,14 +81,53 @@ def add_user(request):
 
 
 def edit_user(request):
-    form = UserForm()
-    cl_init_js_callbacks(form, request)
-
-    form
     context = {
-        'form': form
+
     }
 
+    if request.method == "POST":
+        form = EditUserForm(request.POST)
+        context["form"] = form
+        form.user = request.user
+        print "valido",form.is_valid()
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            #TODO save formd
+            return HttpResponseRedirect(reverse('deals:index'))
+
+
+
+    else:
+        user = request.user
+        print "User", user.id
+
+        profile=Profile.objects.filter(user=user)[0]
+        form = EditUserForm(initial={
+            'user' : user,
+            'username': user.username,
+            'first_name' : user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'country' : profile.country,
+            'city' : profile.city,
+            'address' : profile.address,
+            'image' : profile.image,
+            'preferences' : profile.preferences.all().values_list('pk', flat=True)
+
+
+        })
+
+        print "img",profile.image.url
+        context["user_img"] = profile.image
+        context["form"] = form
+
+        cl_init_js_callbacks(form, request)
+
+
+
+
+
+    context["edit"] = True
     return render(request, 'deals/signup.html', context)
 
 def logout_user(request):

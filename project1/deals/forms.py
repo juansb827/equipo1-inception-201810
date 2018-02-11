@@ -15,7 +15,6 @@ class UserForm(ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña")
     password2 = forms.CharField(widget=forms.PasswordInput() , label="Confirmar Contraseña")
     country = forms.CharField(max_length=30, label="Pais")
-
     address = forms.CharField(max_length=50, label="Direccion")
     image = CloudinaryJsFileField(label="Foto", required=False, options={
         'allowed_formats' : ['jpg','png']
@@ -36,6 +35,7 @@ class UserForm(ModelForm):
         self.fields["preferences"].label = "Preferencias"
         self.fields["preferences"].required= False
         self.fields["city"].label = "Ciudad"
+
 
 
 
@@ -69,3 +69,42 @@ class UserForm(ModelForm):
         if password != password2:
             raise forms.ValidationError('Las contraseñas no coinciden.')
         return password2
+
+
+class EditUserForm(UserForm):
+    old_password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña Anterior")
+    password = forms.CharField(widget=forms.PasswordInput(), label="Nueva Contraseña")
+
+    class Meta:
+        model = Profile
+        fields = ['username', 'first_name', 'last_name', 'email', 'old_password','password', 'password2', 'address', 'country', 'city',
+                  'preferences', 'image']
+
+    def clean(self):
+
+        cleaned_data=super(EditUserForm, self).clean()
+
+        old_password = cleaned_data['old_password']
+        password = cleaned_data['password']
+        if old_password and password:
+            if not self.user.check_password(old_password):
+                raise forms.ValidationError('Contraseña incorrecta.')
+            if old_password == password:
+                raise forms.ValidationError('La nueva contraseña debe ser diferente a la anterior.')
+
+
+        return cleaned_data
+
+
+
+
+
+
+
+    def clean_username(self):
+        if self.cleaned_data["username"] != self.user.username:
+            return super(EditUserForm,self).clean_username()
+
+    def clean_email(self):
+        if self.cleaned_data["email"] != self.user.email:
+            return super(EditUserForm,self).clean_email()
