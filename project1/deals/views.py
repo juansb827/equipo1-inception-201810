@@ -16,7 +16,7 @@ import cloudinary.api
 # Create your views here.
 from django.urls import reverse
 
-from .models import Offer, Profile, Category
+from .models import Offer, Profile, Category, Comment
 from .forms import UserForm, EditUserForm, LoginForm
 
 
@@ -34,16 +34,36 @@ def index(request):
         nombrePromocion = request.POST.get('nombrePromocion')
         idCategoria = request.POST.get('idCategoria')
         # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
+        print "idCategoria = ",idCategoria
+        print "nombrePromocion = ", nombrePromocion
         if idCategoria == -1:
-            lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
+            lista_promociones = Offer.objects.all()
         else:
-            lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
+            categoria = Category.objects.filter(id=idCategoria)
+            print "categoria = ",categoria
+            if categoria != None and categoria.count() > 0:
+                lista_promociones = Offer.objects.filter(category=categoria)
+            else:
+                mensaje_resultados_vacios = 'La consulta no arrojó resultados'
+                lista_promociones = {}
+        lista_categorias = Category.objects.all()
     else:
+        lista_promociones = Offer.objects.all()
+        lista_categorias = Category.objects.all()
 
-        lista_promociones= Offer.objects.all()
+    print "lista_promociones = ", lista_promociones
+    print "lista_categorias = ", lista_categorias
+    for promocion in lista_promociones:
+        print "promocion.id = ", promocion.id, " - promocion.name = ", promocion.name, " - promocion.category = ", promocion.category, " - city = ", promocion.city," - start_date",promocion.start_date
+
+    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias, 'empty_results_message': mensaje_resultados_vacios}
+
+    lista_promociones = Offer.objects.all()
 
     lista_categorias = Category.objects.all()
-    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias}
+    comments = Comment.objects.all()
+    context = {'lista_promociones': lista_promociones, 'lista_categorias': lista_categorias, 'comments': comments}
+
     return render(request, 'deals/index.html', context)
 
 
