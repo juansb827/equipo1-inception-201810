@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import datetime
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -30,9 +31,13 @@ cloudinary.config(
 
 
 def index(request):
+    mensaje_resultados_vacios = ""
+    lista_categorias = Category.objects.all()
+
     if request.method == "POST":
         nombrePromocion = request.POST.get('nombrePromocion')
         idCategoria = request.POST.get('idCategoria')
+
         # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
         print "idCategoria = ",idCategoria
         print "nombrePromocion = ", nombrePromocion
@@ -43,26 +48,21 @@ def index(request):
             print "categoria = ",categoria
             if categoria != None and categoria.count() > 0:
                 lista_promociones = Offer.objects.filter(category=categoria)
-            else:
-                mensaje_resultados_vacios = 'La consulta no arrojó resultados'
-                lista_promociones = {}
-        lista_categorias = Category.objects.all()
+                if lista_promociones != None and lista_promociones.count() > 0:
+                    mensaje_resultados_vacios = ''
+                else:
+                    mensaje_resultados_vacios ='La consulta no arrojó resultados'
     else:
         lista_promociones = Offer.objects.all()
-        lista_categorias = Category.objects.all()
 
     print "lista_promociones = ", lista_promociones
     print "lista_categorias = ", lista_categorias
+    print "mensaje_resultados_vacios = ", mensaje_resultados_vacios
     for promocion in lista_promociones:
         print "promocion.id = ", promocion.id, " - promocion.name = ", promocion.name, " - promocion.category = ", promocion.category, " - city = ", promocion.city," - start_date",promocion.start_date
 
-    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias, 'empty_results_message': mensaje_resultados_vacios}
-
-    lista_promociones = Offer.objects.all()
-
-    lista_categorias = Category.objects.all()
     comments = Comment.objects.all()
-    context = {'lista_promociones': lista_promociones, 'lista_categorias': lista_categorias, 'comments': comments}
+    context = {'lista_promociones': lista_promociones, 'lista_categorias': lista_categorias, 'comments': comments, 'empty_results_message': mensaje_resultados_vacios}
 
     return render(request, 'deals/index.html', context)
 
@@ -216,3 +216,19 @@ def login_user(request):
                 return render(request, 'deals/login.html', context )
     else:
         return render(request, 'deals/login.html', context)
+
+def add_comment(request):
+    if request.method == 'POST':
+            content = request.POST.get('comentario')
+            email = request.POST.get('email')
+            date = datetime.datetime.now()
+            user = request.user
+            offer_id = request.POST.get('oferta')
+            comment = Comment.objects.create(
+                content=content,
+                email_comment=email,
+                create_date=date,
+                user=user,
+                offer_id=offer_id)
+            comment.save()
+    return HttpResponseRedirect(reverse('deals:index'))
