@@ -90,6 +90,26 @@
                                 <li>Ciudad: {{oferta.city.name}} - {{oferta.city.country}}</li>
                             </ul>
                             <img class="img-responsive" align="center" src="{{oferta.img_url}}" width="500" height="300">
+                            <h3>Comentarios</h3>
+                            {%  for comentario in comments %}
+                                {% if comentario.offer.id == oferta.id %}
+                                    <div>
+                                        <ul>
+                                            <li>Comentario: {{comentario.content}}</li>
+                                            <li>Fecha: {{comentario.create_date}}</li>
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <form action="{% url 'deals:addComment' %}" method="post" class="form-inline" style="text-align: center;margin-bottom: 20px" >
+                                {% csrf_token %}
+                                <div class="form-group ">
+                                    <input type="hidden" name="oferta" value="{{oferta.id}}">
+                                    <input type="text" id="comentario" name="comentario" class="form-control" size="500" placeholder="Comentario"  >
+                                    <input type="text" id="email_comment" name="email" class="form-control" size="100" placeholder="Email"  >
+                                </div>
+                                 <button type="submit" class="btn btn-default">Comentario</button>
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from django.db import models
-from django.contrib.auth.models import User
+
 from cloudinary.models import CloudinaryField
+from django.contrib.auth.models import User
+from django.db import models
 
 
 class City(models.Model):
@@ -38,23 +39,18 @@ class Offer(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     preferences = models.ManyToManyField(Category)
-    country = models.CharField(max_length=30,null=True)
+    country = models.CharField(max_length=30, null=True)
     city = models.CharField(max_length=30, null=True)
     image = CloudinaryField('image', null=True)
     address = models.CharField(max_length=150)
-
 
     def __unicode__(self):
         return self.user.username + "-" + self.user.email
 
 
 class Comment(models.Model):
-    # id_comment
-    content = models.TextField(max_length=3000)
-    email_comment = models.CharField(max_length=150)
+    content = models.TextField(max_length=500)
+    email_comment = models.CharField(max_length=100)
     create_date = models.DateTimeField(blank=False)
     user = models.ForeignKey(User, null=False)
-
-
-
-
+    offer = models.ForeignKey(Offer, null=False)

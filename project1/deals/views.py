@@ -1,32 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import datetime
 import os
 
-from django.contrib.auth import authenticate, login, logout
+import cloudinary.api
+from cloudinary.forms import cl_init_js_callbacks
+from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from cloudinary.forms import cl_init_js_callbacks
 from django.shortcuts import render
-
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
 # Create your views here.
 from django.urls import reverse
 
-from .models import Offer, Profile, Category
 from .forms import UserForm, EditUserForm, LoginForm
-
-
+from .models import Offer, Profile, Category, Comment
 
 cloudinary.config(
-  cloud_name = os.environ.get('CLOUDINARY_NAME'),
-  api_key = os.environ.get('CLOUDINARY_API_KEY'),
-  api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+    cloud_name=os.environ.get('CLOUDINARY_NAME'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET')
 )
-
 
 
 def index(request):
@@ -37,10 +31,11 @@ def index(request):
         lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
     else:
 
-        lista_promociones= Offer.objects.all()
+        lista_promociones = Offer.objects.all()
 
     lista_categorias = Category.objects.all()
-    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias}
+    comments = Comment.objects.all()
+    context = {'lista_promociones': lista_promociones, 'lista_categorias': lista_categorias, 'comments': comments}
     return render(request, 'deals/index.html', context)
 
 
@@ -53,7 +48,7 @@ def add_user(request):
             username = cleaned_data.get('username')
             print "username", username
             first_name = cleaned_data.get('first_name')
-            print "Firstname",cleaned_data.get('first_name')
+            print "Firstname", cleaned_data.get('first_name')
             last_name = cleaned_data.get('last_name')
             password = cleaned_data.get('password')
             email = cleaned_data.get('email')
@@ -81,9 +76,8 @@ def add_user(request):
         cl_init_js_callbacks(form, request)
 
     context = {
-            'form' : form
-       }
-
+        'form': form
+    }
 
     return render(request, 'deals/signup.html', context)
 
@@ -97,8 +91,8 @@ def edit_user(request):
         form = EditUserForm(request.POST)
         context["form"] = form
         form.user = request.user
-        print "valido",form.is_valid()
-        cambio_password=False
+        print "valido", form.is_valid()
+        cambio_password = False
         if form.is_valid():
             cleaned_data = form.cleaned_data
             user_model = request.user
@@ -106,16 +100,16 @@ def edit_user(request):
             new_password = cleaned_data['password2']
             if new_password:
                 user_model.set_password(new_password)
-                cambio_password=True
+                cambio_password = True
 
             user_model.first_name = cleaned_data['first_name']
             user_model.last_name = cleaned_data['last_name']
             user_model.email = cleaned_data['email']
 
             profile = Profile.objects.filter(user=request.user)[0]
-            new_image=cleaned_data.get('image');
+            new_image = cleaned_data.get('image');
             print "new Image", new_image
-            if new_image :
+            if new_image:
                 profile.image = new_image
             profile.address = cleaned_data.get('address')
             profile.country = cleaned_data.get('country')
@@ -125,7 +119,7 @@ def edit_user(request):
 
             if cambio_password:
                 return HttpResponseRedirect(reverse('deals:login'))
-            else :
+            else:
                 return HttpResponseRedirect(reverse('deals:index'))
 
 
@@ -134,24 +128,23 @@ def edit_user(request):
         user = request.user
         print "User", user.id
 
-        profile=Profile.objects.filter(user=user)[0]
+        profile = Profile.objects.filter(user=user)[0]
         form = EditUserForm(initial={
-            'user' : user,
-            'profile' : profile,
+            'user': user,
+            'profile': profile,
             'username': user.username,
-            'first_name' : user.first_name,
+            'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'country' : profile.country,
-            'city' : profile.city,
-            'address' : profile.address,
-            'image' : profile.image,
-            'preferences' : profile.preferences.all().values_list('pk', flat=True)
-
+            'country': profile.country,
+            'city': profile.city,
+            'address': profile.address,
+            'image': profile.image,
+            'preferences': profile.preferences.all().values_list('pk', flat=True)
 
         })
 
-        print "img",profile.image
+        print "img", profile.image
         context["user_img"] = profile.image
         context["form"] = form
 
@@ -163,6 +156,7 @@ def edit_user(request):
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse('deals:index'))
+
 
 def login_user(request):
     form = LoginForm()
@@ -182,14 +176,31 @@ def login_user(request):
             user_exists = User.objects.filter(username=username)
             print "username = ", username, " password = ", password
             print "user_exists = ", user_exists
-            if user_exists != None and user_exists.count()>0:
+            if user_exists != None and user_exists.count() > 0:
                 profile_exists = Profile.objects.filter(user=user_exists)
                 print "profile_exists = ", profile_exists
-                if profile_exists != None and profile_exists.count()>0:
+                if profile_exists != None and profile_exists.count() > 0:
                     login(request, user_exists.first())
                     return HttpResponseRedirect(reverse('deals:index'))
             else:
                 context['login_message'] = 'Login fallido'
-                return render(request, 'deals/login.html', context )
+                return render(request, 'deals/login.html', context)
     else:
         return render(request, 'deals/login.html', context)
+
+
+def add_comment(request):
+    if request.method == 'POST':
+            content = request.POST.get('comentario')
+            email = request.POST.get('email')
+            date = datetime.datetime.now()
+            user = request.user
+            offer_id = request.POST.get('oferta')
+            comment = Comment.objects.create(
+                content=content,
+                email_comment=email,
+                create_date=date,
+                user=user,
+                offer_id=offer_id)
+            comment.save()
+    return HttpResponseRedirect(reverse('deals:index'))
