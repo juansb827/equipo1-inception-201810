@@ -31,6 +31,8 @@ cloudinary.config(
 
 
 def index(request):
+    mensaje_resultados_vacios=""
+
     if request.method == "POST":
         nombrePromocion = request.POST.get('nombrePromocion')
         idCategoria = request.POST.get('idCategoria')
@@ -45,7 +47,8 @@ def index(request):
             if categoria != None and categoria.count() > 0:
                 lista_promociones = Offer.objects.filter(category=categoria)
             else:
-                lista_promociones = Offer.objects.all()
+                mensaje_resultados_vacios = 'La consulta no arrojó resultados'
+                lista_promociones = {}
         lista_categorias = Category.objects.all()
     else:
         lista_promociones = Offer.objects.all()
@@ -56,21 +59,9 @@ def index(request):
     for promocion in lista_promociones:
         print "promocion.id = ", promocion.id, " - promocion.name = ", promocion.name, " - promocion.category = ", promocion.category, " - city = ", promocion.city," - start_date",promocion.start_date
 
-    # categoria = Category.objects.filter(id=3).first()
-    # ciudad = City.objects.filter(id=1).first()
-    #
-    # nueva_oferta = Offer()
-    # nueva_oferta.category = categoria
-    # nueva_oferta.name = "Mega Oferta"
-    # nueva_oferta.img_url = "http://www.campingcostablanca.com/wp-content/uploads/2016/02/mega-oferta.png"
-    # nueva_oferta.description = "La mega oferta!"
-    # nueva_oferta.start_date = timezone.now()
-    # nueva_oferta.end_date = timezone.now()
-    # nueva_oferta.city = ciudad
-    # nueva_oferta.amount = 10
-    # nueva_oferta.save()
 
-    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias}
+
+    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias, 'empty_results_message': mensaje_resultados_vacios}
     return render(request, 'deals/index.html', context)
 
 

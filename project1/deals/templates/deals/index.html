@@ -58,6 +58,9 @@
         <input type="text" id="nombrePromocion" name="nombrePromocion" class="form-control" placeholder="Nombre Promoción (Opcional)" style="width: 500px">
     </div>
      <button type="submit" class="btn btn-default">Buscar</button>
+    <div class="btn-danger">
+        {{empty_results_message}}
+    </div>
 </form>
 {%  for oferta in lista_promociones %}
 <div class="col-md-4 col-sm-6 col-lg-3">
