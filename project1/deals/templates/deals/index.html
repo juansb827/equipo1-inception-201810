@@ -93,30 +93,33 @@
                                 <li>Ciudad: {{oferta.city.name}} - {{oferta.city.country}}</li>
                             </ul>
                             <img class="img-responsive" align="center" src="{{oferta.img_url}}" width="500" height="300">
-                            <h3>Comentarios</h3>
+                            <h4>Comentarios</h4>
                             {%  for comentario in comments %}
                                 {% if comentario.offer.id == oferta.id %}
-                                    <div>
-                                        <ul>
-                                            <li>Comentario: {{comentario.content}}</li>
-                                            <li>Fecha: {{comentario.create_date}}</li>
-                                        </ul>
+                                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                          <h5 class="mb-1">{{comentario.content}}</h5>
+                                          <small class="text-muted">{{comentario.create_date}}</small>
+                                        </div>
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                            <form action="{% url 'deals:addComment' %}" method="post" class="form-inline" style="text-align: center;margin-bottom: 20px" >
+                            <form action="{% url 'deals:addComment' %}" method="post">
                                 {% csrf_token %}
-                                <div class="form-group ">
-                                    <input type="hidden" name="oferta" value="{{oferta.id}}">
-                                    <input type="text" id="comentario" name="comentario" class="form-control" size="500" placeholder="Comentario"  >
-                                    <input type="text" id="email_comment" name="email" class="form-control" size="100" placeholder="Email"  >
+                                <input type="hidden" name="oferta" value="{{oferta.id}}">
+                                <div class="form-group">
+                                    <label for="comentario">Comentario</label>
+                                    <textarea id="comentario" name="comentario" class="form-control" placeholder="Ingresa tu comentario" style="resize:vertical;"></textarea>
                                 </div>
-                                 <button type="submit" class="btn btn-default">Comentario</button>
+                                <div class="form-group">
+                                    <label for="email_comment">Email</label>
+                                    <input type="text" id="email_comment" name="email" class="form-control" placeholder="Email">
+                                </div>
+                                <button type="submit" class="btn btn-success">Añadir Comentario</button>
                             </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-primary">Ver Promocion</button>
                         </div>
                     </div>
                 </div>
