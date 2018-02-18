@@ -16,7 +16,7 @@ import cloudinary.api
 # Create your views here.
 from django.urls import reverse
 
-from .models import Offer, Profile
+from .models import Offer, Profile, Category
 from .forms import UserForm, EditUserForm, LoginForm
 
 
@@ -30,8 +30,14 @@ cloudinary.config(
 
 
 def index(request):
-    lista_promociones=Offer.objects.all()
-    context = {'lista_promociones' : lista_promociones}
+    if request.method == "POST":
+        lista_promociones=None
+    else:
+
+        lista_promociones= Offer.objects.all()
+
+    lista_categorias = Category.objects.all()
+    context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias}
     return render(request, 'deals/index.html', context)
 
 
