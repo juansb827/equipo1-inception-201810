@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.utils import timezone
 
 import os
 
@@ -16,7 +17,7 @@ import cloudinary.api
 # Create your views here.
 from django.urls import reverse
 
-from .models import Offer, Profile, Category
+from .models import Offer, Profile, Category, City
 from .forms import UserForm, EditUserForm, LoginForm
 
 
@@ -34,15 +35,41 @@ def index(request):
         nombrePromocion = request.POST.get('nombrePromocion')
         idCategoria = request.POST.get('idCategoria')
         # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
+        print "idCategoria = ",idCategoria
+        print "nombrePromocion = ", nombrePromocion
         if idCategoria == -1:
-            lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
+            lista_promociones = Offer.objects.all()
         else:
-            lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
+            categoria = Category.objects.filter(id=idCategoria)
+            print "categoria = ",categoria
+            if categoria != None and categoria.count() > 0:
+                lista_promociones = Offer.objects.filter(category=categoria)
+            else:
+                lista_promociones = Offer.objects.all()
+        lista_categorias = Category.objects.all()
     else:
+        lista_promociones = Offer.objects.all()
+        lista_categorias = Category.objects.all()
 
-        lista_promociones= Offer.objects.all()
+    print "lista_promociones = ", lista_promociones
+    print "lista_categorias = ", lista_categorias
+    for promocion in lista_promociones:
+        print "promocion.id = ", promocion.id, " - promocion.name = ", promocion.name, " - promocion.category = ", promocion.category, " - city = ", promocion.city," - start_date",promocion.start_date
 
-    lista_categorias = Category.objects.all()
+    # categoria = Category.objects.filter(id=3).first()
+    # ciudad = City.objects.filter(id=1).first()
+    #
+    # nueva_oferta = Offer()
+    # nueva_oferta.category = categoria
+    # nueva_oferta.name = "Mega Oferta"
+    # nueva_oferta.img_url = "http://www.campingcostablanca.com/wp-content/uploads/2016/02/mega-oferta.png"
+    # nueva_oferta.description = "La mega oferta!"
+    # nueva_oferta.start_date = timezone.now()
+    # nueva_oferta.end_date = timezone.now()
+    # nueva_oferta.city = ciudad
+    # nueva_oferta.amount = 10
+    # nueva_oferta.save()
+
     context = {'lista_promociones' : lista_promociones, 'lista_categorias' :lista_categorias}
     return render(request, 'deals/index.html', context)
 
