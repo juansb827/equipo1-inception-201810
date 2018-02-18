@@ -28,7 +28,10 @@ def index(request):
         nombrePromocion = request.POST.get('nombrePromocion')
         idCategoria = request.POST.get('idCategoria')
         # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
-        lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
+        if idCategoria == -1:
+            lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
+        else:
+            lista_promociones = Offer.objects.filter(pk=3)  # TODO: filtrar segun nombre y idCategoria
     else:
 
         lista_promociones = Offer.objects.all()
