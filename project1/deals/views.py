@@ -47,7 +47,7 @@ def index(request):
         if lista_promociones != None and lista_promociones.count() > 0:
             mensaje_resultados_vacios = ''
         else:
-            mensaje_resultados_vacios ='La consulta no arrojó resultados'
+            mensaje_resultados_vacios ='La consulta no arrojo resultados'
     else:
         lista_promociones = Offer.objects.all()
 
