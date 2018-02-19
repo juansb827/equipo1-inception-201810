@@ -36,35 +36,73 @@ def index(request):
 
     if request.method == "POST":
         nombrePromocion = request.POST.get('nombrePromocion')
-        idCategoria = request.POST.get('idCategoria')
+        idCategoria = int(request.POST.get('idCategoria'))
 
         # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
         print "idCategoria = ",idCategoria
         print "nombrePromocion = ", nombrePromocion
-        if idCategoria == -1:
-            lista_promociones = Offer.objects.all()
+
+        lista_promociones = buscar_promociones(nombrePromocion, idCategoria)
+
+        if lista_promociones != None and lista_promociones.count() > 0:
+            mensaje_resultados_vacios = ''
         else:
-            categoria = Category.objects.filter(id=idCategoria)
-            print "categoria = ",categoria
-            if categoria != None and categoria.count() > 0:
-                lista_promociones = Offer.objects.filter(category=categoria)
-                if lista_promociones != None and lista_promociones.count() > 0:
-                    mensaje_resultados_vacios = ''
-                else:
-                    mensaje_resultados_vacios ='La consulta no arrojó resultados'
+            mensaje_resultados_vacios ='La consulta no arrojó resultados'
     else:
         lista_promociones = Offer.objects.all()
 
     print "lista_promociones = ", lista_promociones
     print "lista_categorias = ", lista_categorias
     print "mensaje_resultados_vacios = ", mensaje_resultados_vacios
-    for promocion in lista_promociones:
-        print "promocion.id = ", promocion.id, " - promocion.name = ", promocion.name, " - promocion.category = ", promocion.category, " - city = ", promocion.city," - start_date",promocion.start_date
+    #for promocion in lista_promociones:
+    #    print "promocion.id = ", promocion.id, " - promocion.name = ", promocion.name, " - promocion.category = ", promocion.category, " - city = ", promocion.city," - start_date",promocion.start_date
 
     comments = Comment.objects.all()
     context = {'lista_promociones': lista_promociones, 'lista_categorias': lista_categorias, 'comments': comments, 'empty_results_message': mensaje_resultados_vacios}
 
     return render(request, 'deals/index.html', context)
+
+def buscar_promociones(nombrePromocion, idCategoria):
+    lista_promociones = Offer.objects.all()
+
+    if nombrePromocion != "" and idCategoria !=-1:
+        lista_promociones = buscar_por_nombre_y_categorias(nombrePromocion, idCategoria)
+    elif nombrePromocion != "" and idCategoria ==-1:
+        lista_promociones = buscar_por_nombre(nombrePromocion)
+    elif nombrePromocion == "" and idCategoria !=-1:
+        lista_promociones = buscar_por_categorias(idCategoria)
+    return lista_promociones
+
+def buscar_por_nombre_y_categorias(nombrePromocion, idCategoria):
+    print "buscar_por_nombre_y_categorias"
+    lista_promociones = Offer.objects.all()
+    # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
+    print "idCategoria = ", idCategoria
+    if idCategoria != -1:
+        categoria = Category.objects.filter(id=idCategoria)
+        print "categoria = ", categoria
+        if categoria != None and categoria.count() > 0:
+            lista_promociones = Offer.objects.filter(category=categoria).filter(name__icontains=nombrePromocion)
+
+    return lista_promociones
+
+def buscar_por_nombre(nombrePromocion):
+    print "buscar_por_nombre"
+    lista_promociones = Offer.objects.filter(name__icontains=nombrePromocion)
+    return lista_promociones
+
+def buscar_por_categorias(idCategoria):
+    print "buscar_por_categorias"
+    lista_promociones = Offer.objects.all()
+    # Si idCategoria es -1, el usuario selecciono "Todas las categorias"
+    print "idCategoria = ", idCategoria
+    if idCategoria != -1:
+        categoria = Category.objects.filter(id=idCategoria)
+        print "categoria = ", categoria
+        if categoria != None and categoria.count() > 0:
+            lista_promociones = Offer.objects.filter(category=categoria)
+
+    return lista_promociones
 
 
 def add_user(request):
