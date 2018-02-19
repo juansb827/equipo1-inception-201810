@@ -104,19 +104,21 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                            <form action="{% url 'deals:addComment' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="oferta" value="{{oferta.id}}">
-                                <div class="form-group">
-                                    <label for="comentario">Comentario</label>
-                                    <textarea id="comentario" name="comentario" class="form-control" placeholder="Ingresa tu comentario" style="resize:vertical;"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email_comment">Email</label>
-                                    <input type="text" id="email_comment" name="email" class="form-control" placeholder="Email">
-                                </div>
-                                <button type="submit" class="btn btn-success">Añadir Comentario</button>
-                            </form>
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'deals:addComment' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="oferta" value="{{oferta.id}}">
+                                    <div class="form-group">
+                                        <label for="comentario">Comentario</label>
+                                        <textarea id="comentario" name="comentario" class="form-control" placeholder="Ingresa tu comentario" style="resize:vertical;"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email_comment">Email</label>
+                                        <input type="text" id="email_comment" name="email" class="form-control" placeholder="Email">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Añadir Comentario</button>
+                                </form>
+                            {% endif %}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
