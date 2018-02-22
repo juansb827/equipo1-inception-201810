@@ -6,7 +6,8 @@ import datetime
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.core import serializers
+from django.http import HttpResponseRedirect, HttpResponse
 from cloudinary.forms import cl_init_js_callbacks
 from django.shortcuts import render
 
@@ -16,6 +17,7 @@ import cloudinary.api
 
 # Create your views here.
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import Offer, Profile, Category, Comment
 from .forms import UserForm, EditUserForm, LoginForm
@@ -256,17 +258,18 @@ def login_user(request):
         return render(request, 'deals/login.html', context)
 
 def add_comment(request):
+    comment = {}
     if request.method == 'POST':
-            content = request.POST.get('comentario')
-            email = request.POST.get('email')
-            date = datetime.datetime.now()
-            user = request.user
-            offer_id = request.POST.get('oferta')
-            comment = Comment.objects.create(
-                content=content,
-                email_comment=email,
-                create_date=date,
-                user=user,
-                offer_id=offer_id)
-            comment.save()
-    return HttpResponseRedirect(reverse('deals:index'))
+        content = request.POST.get('comentario')
+        email = request.POST.get('email')
+        date = timezone.now()
+        user = request.user
+        offer_id = request.POST.get('oferta')
+        comment = Comment(
+            content=content,
+            email_comment=email,
+            create_date=date,
+            user=user,
+            offer_id=offer_id)
+        comment.save()
+    return HttpResponse(serializers.serialize("json", [comment]))

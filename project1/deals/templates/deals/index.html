@@ -5,6 +5,7 @@
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% load tz %}
 
 <html lang="en">
 <head>
@@ -99,22 +100,27 @@
                                     <div class="list-group-item list-group-item-action flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                           <h5 class="mb-1">{{comentario.content}}</h5>
-                                          <small class="text-muted">{{comentario.create_date}}</small>
+
+                                          <small class="text-muted">
+                                            {% localtime on %}
+                                              {{comentario.create_date}}
+                                            {% endlocaltime %}
+                                          </small>
                                         </div>
                                     </div>
                                 {% endif %}
                             {% endfor %}
                             {% if user.is_authenticated %}
-                                <form action="{% url 'deals:addComment' %}" method="post">
+                                <form id="formComment" action="http://127.0.0.1:8000/deals/addComment/" enctype="multipart/form-data" method="post">
                                     {% csrf_token %}
-                                    <input type="hidden" name="oferta" value="{{oferta.id}}">
+                                    <input type="hidden" id="oferta" name="oferta" value="{{oferta.id}}">
                                     <div class="form-group">
                                         <label for="comentario">Comentario</label>
-                                        <textarea id="comentario" name="comentario" class="form-control" placeholder="Ingresa tu comentario" style="resize:vertical;"></textarea>
+                                        <textarea id="comentario" name="comentario" class="form-control" placeholder="Ingresa tu comentario" style="resize:vertical;" required></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="email_comment">Email</label>
-                                        <input type="text" id="email_comment" name="email" class="form-control" placeholder="Email">
+                                        <input type="email" id="email_comment" name="email" class="form-control" placeholder="Email" required>
                                     </div>
                                     <button type="submit" class="btn btn-success">Añadir Comentario</button>
                                 </form>
@@ -131,9 +137,23 @@
 
     </div>
 </div>
-
-</div>
 {% endfor %}
-
+<script>
+    $('form').submit(function (e) {
+       var formData = new FormData($("#formComment")[0]);
+       $.ajax({
+           url: $(this).attr('action'),
+           type: $(this).attr('method'),
+           data: formData,
+           cache: false,
+           processData: false,
+           contentType: false,
+           success: function () {
+               window.location = "http://127.0.0.1:8000/deals";
+           }
+           });
+       e.preventDefault();
+    });
+</script>
 </body>
 </html>
