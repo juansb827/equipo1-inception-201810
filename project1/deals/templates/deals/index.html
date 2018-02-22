@@ -111,7 +111,7 @@
                                 {% endif %}
                             {% endfor %}
                             {% if user.is_authenticated %}
-                                <form id="formComment" action="addComment/" enctype="multipart/form-data" method="post">
+                                <form id="formComment" action="../deals/addComment/" enctype="multipart/form-data" method="post">
                                     {% csrf_token %}
                                     <input type="hidden" id="oferta" name="oferta" value="{{oferta.id}}">
                                     <div class="form-group">
