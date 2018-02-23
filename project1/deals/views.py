@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 import os
+import sendgrid
+from sendgrid.helpers.mail import *
 import datetime
 
 from django.contrib.auth import authenticate, login, logout
@@ -138,6 +140,17 @@ def add_user(request):
             profile.preferences = cleaned_data['preferences']
             profile.save();
 
+            # Envia mail de bienvenida
+            sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+            from_email = Email("test@example.com")
+            subject = "Bienvenido a Promociones-Grupo1"
+            to_email = Email(cleaned_data['email'])
+            content = Content("text/html",
+                              'Gracias por registrarte, para iniciar sesión por favor ingresa al siguiente enlace  <a href="http://grupo1-promociones.herokuapp.com/deals/login/">http://grupo1-promociones.herokuapp.com/deals/login/ </a>')
+            mail = Mail(from_email, subject, to_email, content)
+            response = sg.client.mail.send.post(request_body=mail.get())
+            print "response", response
+
             return HttpResponseRedirect(reverse('deals:index'))
     else:
         form = UserForm()
@@ -186,6 +199,8 @@ def edit_user(request):
             user_model.save();
             profile.save();
 
+
+
             if cambio_password:
                 return HttpResponseRedirect(reverse('deals:login'))
             else :
@@ -196,6 +211,7 @@ def edit_user(request):
     else:
         user = request.user
         print "User", user.id
+
 
         profile=Profile.objects.filter(user=user)[0]
         form = EditUserForm(initial={
