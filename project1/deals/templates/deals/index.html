@@ -77,9 +77,9 @@
                 <li>Ciudad: {{oferta.city.name}} - {{oferta.city.country}}</li>
             </ul>
             <img class="img-responsive" src="{{oferta.img_url}}" width="500" height="300">
-            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#{{oferta.name}}">Ver promoción</button>
+            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#{{oferta.pk }}">Ver promoción</button>
 
-            <div class="modal fade" id="{{oferta.name}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal fade" id="{{oferta.pk}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
