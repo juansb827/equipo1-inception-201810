@@ -25,7 +25,7 @@ class UserForm(ModelForm):
     class Meta:
         model = Profile
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'password2', 'address', 'country', 'city',
-                  'preferences', 'image']
+                  'preferences','image']
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -42,11 +42,8 @@ class UserForm(ModelForm):
             raise forms.ValidationError('Debe seleccionar almenos una preferencia.')
         return preferences
 
-    def clean_image(self):
-        image = self.cleaned_data['image']
-        if image is None:
-            raise forms.ValidationError('Debe seleccionar una imagen')
-        return image
+
+
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -94,6 +91,12 @@ class EditUserForm(UserForm):
             if password and old_password == password:
                 raise forms.ValidationError('La nueva contraseña debe ser diferente a la anterior.')
         return cleaned_data
+
+    def clean_image(self):
+        image = self.cleaned_data['image']
+        if image is None:
+            raise forms.ValidationError('Debe seleccionar una imagen')
+        return image
 
     def clean_username(self):
         if self.cleaned_data["username"] != self.user.username:

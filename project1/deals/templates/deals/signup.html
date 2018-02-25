@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 {% load cloudinary %}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
 {% cloudinary_includes %}
 <html lang="en">
 <head>
@@ -12,6 +13,11 @@
 </head>
 <body>
 <script>
+    var edit="{{edit}}"
+
+    var uploadedImage="";
+
+
     $(function() {
         if($.fn.cloudinary_fileupload !== undefined) {
             $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
@@ -23,16 +29,22 @@
      }).on('cloudinarydone',function (e,data) {
          console.log("DONE",data);
          $('#img_preview').attr("src",data.result.url)
+         uploadedImage="image/upload/"+data.result.path;
          //$('#id_image').hide()
      })
 
+    var count=0;
     $(function () {
 
      }).on('fileuploadprogress',function (e,data) {
+         if(count==0)console.log("progress",data);
+        count++;
 
-        // console.log("progress",data.loaded ,data.total);
 
      })
+
+
+
 
 
 </script>
@@ -44,10 +56,17 @@
 {% endif %}
 <div class="row">
     <div class="col-sm-4 col-sm-offset-4">
+
+
+     <div class="alert alert-danger" id="msg">
+                    <label id="mensaje"></label>
+     </div>
+
         {% block content %}
-        <form action="" method="post">
+        <form action="" method="post" id="form-registro">
             {% csrf_token %}
             {% bootstrap_form form %}
+
             <div style="width: 100%;text-align: center">
                 <div id="loading_indicator"></div>
                 <img id="img_preview" src="{{ user_img.url}}" class="img-thumbnail" crop="scale" width="304"  />
@@ -62,5 +81,78 @@
         {% endblock %}
     </div>
 </div>
+
+<script>
+    $("#msg").hide();
+        $('#form-registro').submit(function (e) {
+            if(edit){
+                console.log("Editing");
+                return;
+            }
+            e.preventDefault();
+                var formData=($('#form-registro')).serialize();
+            console.log("form data",formData);
+
+            var username=$('#id_username').val();
+            var first_name=$('#id_first_name').val();
+            var last_name=$('#id_last_name').val();
+            var email=$('#id_email').val();
+            var password=$('#id_password').val();
+            var password2=$('#id_password2').val();
+            var address=$('#id_address').val();
+            var country=$('#id_country').val();
+            var city=$('#id_city').val();
+
+            var preferences = $("#id_preferences input:checkbox:checked").map(function(){
+                return $(this).val();
+            }).get();
+
+
+
+            $.ajax({
+                url : "https://grupo1-promociones.herokuapp.com/deals/addUser/",
+                type : $(this).attr('method'),
+                data : JSON.stringify({
+                    username : username,
+                    first_name : first_name,
+                    last_name : last_name,
+                    email : email,
+                    password : password,
+                    password2 : password2,
+                    address : address,
+                    country : country,
+                    city : city,
+                    image2 : uploadedImage,
+                    preferences:preferences
+
+
+                }),
+                cache : false,
+                contentType: "application/json; charshet=utf-8",
+                dataType : "json",
+                success : function (data) {
+                    console.log("data",data);
+
+                    if(data.errors){
+                    var errores=JSON.parse(data.errors);
+                    var msg="<ul>"
+                    $("#mensaje").html("")
+                    Object.keys(errores).forEach(function (key) {
+                        msg+= "<li>"+errores[key][0].message+"</li>";
+
+                    })
+                    msg+="</ul>"
+                    $("#msg").show();
+                    $("#mensaje").prepend(msg);
+                    }else{
+                      window.location =  "https://grupo1-promociones.herokuapp.com/deals/login";
+                    }
+
+
+
+                }
+            })
+        });
+    </script>
 </body>
 </html>

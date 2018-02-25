@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import os
 import sendgrid
 from sendgrid.helpers.mail import *
 import datetime
 
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core import serializers
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from cloudinary.forms import cl_init_js_callbacks
 from django.shortcuts import render
 
@@ -108,11 +110,21 @@ def buscar_por_categorias(idCategoria):
 
     return lista_promociones
 
-
+@csrf_exempt
 def add_user(request):
     if request.method == "POST":
-        form = UserForm(request.POST)
+        request_data = json.loads(request.body)
+        #print "Username",request_data["username"]
+        form = UserForm(request_data)
+        print "Prefernecias", request_data["image2"]
+        print "Valido", form.is_valid()
+
+        if not request_data["image2"]:
+            form.add_error("image","Debe seleccionar una imagen.")
+
         if form.is_valid():
+
+
             print "Valido", form.is_valid()
             cleaned_data = form.cleaned_data
             username = cleaned_data.get('username')
@@ -132,7 +144,7 @@ def add_user(request):
 
             profile = Profile()
             profile.user = user_model
-            profile.image = cleaned_data.get('image')
+            profile.image = request_data["image2"]
             profile.address = cleaned_data.get('address')
             profile.country = cleaned_data.get('country')
             profile.city = cleaned_data.get('city')
@@ -149,9 +161,17 @@ def add_user(request):
                               'Gracias por registrarte, para iniciar sesión por favor ingresa al siguiente enlace  <a href="http://grupo1-promociones.herokuapp.com/deals/login/">http://grupo1-promociones.herokuapp.com/deals/login/ </a>')
             mail = Mail(from_email, subject, to_email, content)
             response = sg.client.mail.send.post(request_body=mail.get())
-            print "response", response
+            print "usuario",username,"pass",password
+            hue = {"mensaje": "ok"}
+            return JsonResponse(hue)
+        else:
 
-            return HttpResponseRedirect(reverse('deals:index'))
+
+            hue={"mensaje" : "error", "errors" : form.errors.as_json() }
+            return JsonResponse(hue)
+
+
+
     else:
         form = UserForm()
         cl_init_js_callbacks(form, request)
